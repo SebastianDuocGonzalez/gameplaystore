@@ -69,5 +69,6 @@ VALUES (1, 'Admin', 'admin@gamestore.com', '{noop}1234', 'ADMIN');
 
 INSERT INTO usuarios (id, nombre, email, password, rol)
 VALUES (2, 'Cliente', 'cliente@gamestore.com', '{noop}1234', 'CLIENTE');
-
-ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 10;
+-- Ajustar la secuencia de usuarios para que el próximo sea el 3
+-- Nota: El nombre de la secuencia suele ser 'usuarios_id_seq', verifica en tu BDD
+SELECT setval('usuarios_id_seq', (SELECT MAX(id) FROM usuarios));
