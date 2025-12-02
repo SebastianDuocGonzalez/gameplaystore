@@ -5,12 +5,15 @@ FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 # 1. Copiamos el pom solo para aprovechar cache
-COPY pom.xml .
-RUN mvn -B dependency:go-offline
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN chmod +x ./mvnw
+RUN ./mvnw dependency:go-offline -B
+
 # 2. Copiamos el resto del proyecto
-COPY . .
+COPY src ./src
 # 3. Build sin tests
-RUN mvn -B clean package -DskipTests
+RUN ./mvnw -B clean package -DskipTests
 
 # --------------------------------------------------------
 # ETAPA 2: Ejecución (Run)
