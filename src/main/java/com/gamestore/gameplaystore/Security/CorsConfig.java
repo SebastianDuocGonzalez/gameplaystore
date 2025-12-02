@@ -9,7 +9,8 @@ import lombok.NonNull;
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowed-origins}")
+    // Si no encuentra la variable, usa "http://localhost:3000" por defecto
+    @Value("${cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
 
     @Bean
@@ -17,7 +18,6 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
-                // FIXED: Now using the variable instead of hardcoded strings
                 registry.addMapping("/**")
                         .allowedOrigins(allowedOrigins.split(",")) 
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
