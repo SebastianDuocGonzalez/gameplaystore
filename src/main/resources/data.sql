@@ -1,6 +1,12 @@
+-- =================================================================================
+-- SCRIPT DE DATOS INICIALES (SEED DATA)
+-- Compatible con: PostgreSQL 14, 15, 16, 17+
+-- =================================================================================
+
+BEGIN; -- Iniciar transacción para asegurar integridad atómica
+
 -- ==========================================
 -- 1. CATEGORIAS
--- Usamos SELECT ... WHERE NOT EXISTS para evitar duplicados por nombre
 -- ==========================================
 
 INSERT INTO categorias (nombre, descripcion)
@@ -18,9 +24,9 @@ WHERE NOT EXISTS (SELECT 1 FROM categorias WHERE nombre = 'Accesorios');
 INSERT INTO categorias (nombre, descripcion)
 SELECT 'Equipos', 'Equipos completos y setups para gaming y streaming'
 WHERE NOT EXISTS (SELECT 1 FROM categorias WHERE nombre = 'Equipos');
+
 -- ==========================================
 -- 2. SUBCATEGORIAS
--- Agregamos la validación AND NOT EXISTS en tus consultas
 -- ==========================================
 
 INSERT INTO subcategorias (nombre, descripcion, activa, categoria_id)
@@ -59,24 +65,25 @@ FROM categorias c
 WHERE c.nombre = 'Equipos'
 AND NOT EXISTS (SELECT 1 FROM subcategorias WHERE nombre = 'Setups Streaming');
 
-
 -- ==========================================
 -- 3. PRODUCTOS
--- Misma lógica: verificamos que el producto no exista por nombre antes de insertar
 -- ==========================================
 
+-- Producto 1
 INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
 SELECT 'The Legend of Zelda: Tears of the Kingdom', 'Edición estándar para Nintendo Switch', 69.99, 25, 'VIDEOJUEGO', c.id, NULL
 FROM categorias c 
 WHERE c.nombre = 'Videojuegos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'The Legend of Zelda: Tears of the Kingdom');
 
+-- Producto 2
 INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
 SELECT 'PlayStation 5 Slim', 'Consola PS5 con unidad de discos', 499.00, 10, 'CONSOLA', c.id, NULL
 FROM categorias c 
 WHERE c.nombre = 'Consolas'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'PlayStation 5 Slim');
 
+-- Producto 3
 INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
 SELECT 'Xbox Elite Wireless Controller Series 2', 'Control inalámbrico personalizable', 179.99, 18, 'ACCESORIO', c.id, sc.id
 FROM categorias c
@@ -84,6 +91,7 @@ JOIN subcategorias sc ON sc.nombre = 'Controles Pro' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Accesorios'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Xbox Elite Wireless Controller Series 2');
 
+-- Producto 4
 INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
 SELECT 'NVIDIA GeForce RTX 4070 Super', 'Tarjeta gráfica 12GB GDDR6X', 699.00, 7, 'EQUIPO', c.id, sc.id
 FROM categorias c
@@ -91,6 +99,7 @@ JOIN subcategorias sc ON sc.nombre = 'PC Gamer' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Equipos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'NVIDIA GeForce RTX 4070 Super');
 
+-- Producto 5
 INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
 SELECT 'Lenovo Legion Pro 7', 'Laptop gaming con RTX 4080', 2499.00, 4, 'EQUIPO', c.id, sc.id
 FROM categorias c
@@ -98,6 +107,7 @@ JOIN subcategorias sc ON sc.nombre = 'Laptops Gaming' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Equipos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Lenovo Legion Pro 7');
 
+-- Producto 6
 INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
 SELECT 'Kit Streaming 4K', 'Incluye capturadora, micrófono XLR y paneles LED', 1199.00, 6, 'EQUIPO', c.id, sc.id
 FROM categorias c
@@ -105,10 +115,9 @@ JOIN subcategorias sc ON sc.nombre = 'Setups Streaming' AND sc.categoria_id = c.
 WHERE c.nombre = 'Equipos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Kit Streaming 4K');
 
-
 -- ==========================================
 -- 4. USUARIOS
--- Aquí SI funciona tu ON CONFLICT (id) porque tú especificas el ID manualmente
+-- Nota: La contraseña '{noop}1234' funciona con DelegatingPasswordEncoder
 -- ==========================================
 
 INSERT INTO usuarios (id, nombre, email, password, rol)
@@ -119,5 +128,26 @@ INSERT INTO usuarios (id, nombre, email, password, rol)
 VALUES (2, 'Cliente', 'cliente@gamestore.com', '{noop}1234', 'CLIENTE')
 ON CONFLICT (id) DO NOTHING;
 
--- Actualizamos la secuencia para evitar errores al crear nuevos usuarios
-SELECT setval('usuarios_id_seq', (SELECT MAX(id) FROM usuarios));
+INSERT INTO usuarios (id, nombre, email, password, rol)
+VALUES (3, 'Vendedor', 'vendedor@gamestore.com', '{noop}1234', 'TRABAJADOR')
+ON CONFLICT (id) DO NOTHING;
+
+-- ==========================================
+-- 5. AJUSTE DE SECUENCIAS (CRÍTICO PARA POSTGRESQL)
+-- PostgreSQL no actualiza automáticamente la secuencia si insertamos IDs manuales.
+-- Esto previene el error "Duplicate Key" al crear el siguiente registro.
+-- ==========================================
+
+-- Ajustar secuencia de usuarios (porque insertamos id 1, 2, 3 manualmente)
+SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE((SELECT MAX(id) FROM usuarios), 1));
+
+-- Ajustar secuencia de productos (por seguridad, aunque usamos auto-inc)
+SELECT setval(pg_get_serial_sequence('productos', 'id'), COALESCE((SELECT MAX(id) FROM productos), 1));
+
+-- Ajustar secuencia de categorias
+SELECT setval(pg_get_serial_sequence('categorias', 'id'), COALESCE((SELECT MAX(id) FROM categorias), 1));
+
+-- Ajustar secuencia de subcategorias
+SELECT setval(pg_get_serial_sequence('subcategorias', 'id'), COALESCE((SELECT MAX(id) FROM subcategorias), 1));
+
+COMMIT; -- Confirmar cambios
