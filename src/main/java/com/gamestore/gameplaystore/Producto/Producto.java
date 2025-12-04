@@ -60,6 +60,10 @@ public class Producto {
     @Column(length = 60)
     private String tipo;
 
+    @Size(max = 1000)
+    @Column(length = 1000)
+    private String imagen;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "categoria_id", nullable = false)
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
@@ -69,4 +73,5 @@ public class Producto {
     @JoinColumn(name = "subcategoria_id")
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Subcategoria subcategoria;
+
 }
