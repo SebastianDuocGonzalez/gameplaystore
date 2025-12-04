@@ -133,6 +133,40 @@ VALUES (3, 'Vendedor', 'vendedor@gamestore.com', '{noop}1234', 'TRABAJADOR')
 ON CONFLICT (id) DO NOTHING;
 
 -- ==========================================
+-- 6. ORDENES (Datos de Ejemplo)
+-- Creamos historial para el usuario CLIENTE (ID 2)
+-- ==========================================
+
+-- Orden 1: Compra grande (PS5 + Juego)
+INSERT INTO ordenes (id, fecha, total, user_id)
+VALUES (1, '2025-01-15 10:30:00', 568.99, 2)
+ON CONFLICT (id) DO NOTHING;
+
+-- Orden 2: Compra accesorio (Control Xbox)
+INSERT INTO ordenes (id, fecha, total, user_id)
+VALUES (2, '2025-02-01 15:45:00', 179.99, 2)
+ON CONFLICT (id) DO NOTHING;
+
+-- ==========================================
+-- 7. DETALLES DE ORDEN
+-- Vinculamos productos a las órdenes
+-- ==========================================
+
+-- Detalles Orden 1
+INSERT INTO detalles_orden (id, orden_id, producto_id, nombre_producto, cantidad, precio_unitario, subtotal)
+VALUES (1, 1, 2, 'PlayStation 5 Slim', 1, 499.00, 499.00)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO detalles_orden (id, orden_id, producto_id, nombre_producto, cantidad, precio_unitario, subtotal)
+VALUES (2, 1, 1, 'The Legend of Zelda: Tears of the Kingdom', 1, 69.99, 69.99)
+ON CONFLICT (id) DO NOTHING;
+
+-- Detalles Orden 2
+INSERT INTO detalles_orden (id, orden_id, producto_id, nombre_producto, cantidad, precio_unitario, subtotal)
+VALUES (3, 2, 3, 'Xbox Elite Wireless Controller Series 2', 1, 179.99, 179.99)
+ON CONFLICT (id) DO NOTHING;
+
+-- ==========================================
 -- 5. AJUSTE DE SECUENCIAS (CRÍTICO PARA POSTGRESQL)
 -- PostgreSQL no actualiza automáticamente la secuencia si insertamos IDs manuales.
 -- Esto previene el error "Duplicate Key" al crear el siguiente registro.
@@ -141,7 +175,7 @@ ON CONFLICT (id) DO NOTHING;
 -- Ajustar secuencia de usuarios (porque insertamos id 1, 2, 3 manualmente)
 SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE((SELECT MAX(id) FROM usuarios), 1));
 
--- Ajustar secuencia de productos (por seguridad, aunque usamos auto-inc)
+-- Ajustar secuencia de productos
 SELECT setval(pg_get_serial_sequence('productos', 'id'), COALESCE((SELECT MAX(id) FROM productos), 1));
 
 -- Ajustar secuencia de categorias
@@ -149,5 +183,11 @@ SELECT setval(pg_get_serial_sequence('categorias', 'id'), COALESCE((SELECT MAX(i
 
 -- Ajustar secuencia de subcategorias
 SELECT setval(pg_get_serial_sequence('subcategorias', 'id'), COALESCE((SELECT MAX(id) FROM subcategorias), 1));
+
+-- Ajustar secuencia de ordenes
+SELECT setval(pg_get_serial_sequence('ordenes', 'id'), COALESCE((SELECT MAX(id) FROM ordenes), 1));
+
+-- Ajustar secuencia de detalles_orden
+SELECT setval(pg_get_serial_sequence('detalles_orden', 'id'), COALESCE((SELECT MAX(id) FROM detalles_orden), 1));
 
 COMMIT; -- Confirmar cambios
