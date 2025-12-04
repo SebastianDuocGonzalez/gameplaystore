@@ -67,49 +67,50 @@ AND NOT EXISTS (SELECT 1 FROM subcategorias WHERE nombre = 'Setups Streaming');
 
 -- ==========================================
 -- 3. PRODUCTOS
+-- Se agregó la columna 'imagen' para evitar problemas de carga en el frontend
 -- ==========================================
 
 -- Producto 1
-INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
-SELECT 'The Legend of Zelda: Tears of the Kingdom', 'Edición estándar para Nintendo Switch', 69.99, 25, 'VIDEOJUEGO', c.id, NULL
+INSERT INTO productos (nombre, descripcion, precio, stock, tipo, imagen, categoria_id, subcategoria_id)
+SELECT 'The Legend of Zelda: Tears of the Kingdom', 'Edición estándar para Nintendo Switch', 69.99, 25, 'VIDEOJUEGO', 'https://images.unsplash.com/photo-1599557297054-05183842c6c4?auto=format&fit=crop&w=400&q=80', c.id, NULL
 FROM categorias c 
 WHERE c.nombre = 'Videojuegos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'The Legend of Zelda: Tears of the Kingdom');
 
 -- Producto 2
-INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
-SELECT 'PlayStation 5 Slim', 'Consola PS5 con unidad de discos', 499.00, 10, 'CONSOLA', c.id, NULL
+INSERT INTO productos (nombre, descripcion, precio, stock, tipo, imagen, categoria_id, subcategoria_id)
+SELECT 'PlayStation 5 Slim', 'Consola PS5 con unidad de discos', 499.00, 10, 'CONSOLA', 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=400&q=80', c.id, NULL
 FROM categorias c 
 WHERE c.nombre = 'Consolas'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'PlayStation 5 Slim');
 
 -- Producto 3
-INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
-SELECT 'Xbox Elite Wireless Controller Series 2', 'Control inalámbrico personalizable', 179.99, 18, 'ACCESORIO', c.id, sc.id
+INSERT INTO productos (nombre, descripcion, precio, stock, tipo, imagen, categoria_id, subcategoria_id)
+SELECT 'Xbox Elite Wireless Controller Series 2', 'Control inalámbrico personalizable', 179.99, 18, 'ACCESORIO', 'https://images.unsplash.com/photo-1600080972464-8e5f35f63d88?auto=format&fit=crop&w=400&q=80', c.id, sc.id
 FROM categorias c
 JOIN subcategorias sc ON sc.nombre = 'Controles Pro' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Accesorios'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Xbox Elite Wireless Controller Series 2');
 
 -- Producto 4
-INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
-SELECT 'NVIDIA GeForce RTX 4070 Super', 'Tarjeta gráfica 12GB GDDR6X', 699.00, 7, 'EQUIPO', c.id, sc.id
+INSERT INTO productos (nombre, descripcion, precio, stock, tipo, imagen, categoria_id, subcategoria_id)
+SELECT 'NVIDIA GeForce RTX 4070 Super', 'Tarjeta gráfica 12GB GDDR6X', 699.00, 7, 'EQUIPO', 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=400&q=80', c.id, sc.id
 FROM categorias c
 JOIN subcategorias sc ON sc.nombre = 'PC Gamer' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Equipos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'NVIDIA GeForce RTX 4070 Super');
 
 -- Producto 5
-INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
-SELECT 'Lenovo Legion Pro 7', 'Laptop gaming con RTX 4080', 2499.00, 4, 'EQUIPO', c.id, sc.id
+INSERT INTO productos (nombre, descripcion, precio, stock, tipo, imagen, categoria_id, subcategoria_id)
+SELECT 'Lenovo Legion Pro 7', 'Laptop gaming con RTX 4080', 2499.00, 4, 'EQUIPO', 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=400&q=80', c.id, sc.id
 FROM categorias c
 JOIN subcategorias sc ON sc.nombre = 'Laptops Gaming' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Equipos'
 AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Lenovo Legion Pro 7');
 
 -- Producto 6
-INSERT INTO productos (nombre, descripcion, precio, stock, tipo, categoria_id, subcategoria_id)
-SELECT 'Kit Streaming 4K', 'Incluye capturadora, micrófono XLR y paneles LED', 1199.00, 6, 'EQUIPO', c.id, sc.id
+INSERT INTO productos (nombre, descripcion, precio, stock, tipo, imagen, categoria_id, subcategoria_id)
+SELECT 'Kit Streaming 4K', 'Incluye capturadora, micrófono XLR y paneles LED', 1199.00, 6, 'EQUIPO', 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80', c.id, sc.id
 FROM categorias c
 JOIN subcategorias sc ON sc.nombre = 'Setups Streaming' AND sc.categoria_id = c.id
 WHERE c.nombre = 'Equipos'
