@@ -1,26 +1,15 @@
 package com.gamestore.gameplaystore.Producto;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.gamestore.gameplaystore.Categoria.Categoria;
 import com.gamestore.gameplaystore.Categoria.CategoriaRepository;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import jakarta.validation.Valid;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/productos")
@@ -30,7 +19,8 @@ public class ProductoController {
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
 
-        @Data
+    // --- DTO INTERNO PARA RECIBIR DATOS LIMPIOS ---
+    @Data
     public static class ProductoRequest {
         private String nombre;
         private String descripcion;
@@ -38,10 +28,25 @@ public class ProductoController {
         private Integer stock;
         private String tipo;
         private String imagen;
-        private Long categoriaId;
+        private Long categoriaId; // Recibimos solo el ID, no el objeto completo
     }
 
-@PostMapping
+    // 1. Obtener todos (Público)
+    @GetMapping
+    public ResponseEntity<List<Producto>> getAll() {
+        return ResponseEntity.ok(productoRepository.findAll());
+    }
+
+    // 2. Obtener por ID (Público)
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> getOne(@PathVariable Long id) {
+        return productoRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 3. Crear Producto (ADMIN)
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody ProductoRequest request) {
         // Validamos que la categoría exista
@@ -61,6 +66,7 @@ public class ProductoController {
         return ResponseEntity.ok(productoRepository.save(producto));
     }
 
+    // 4. Actualizar (ADMIN)
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ProductoRequest request) {
@@ -81,22 +87,11 @@ public class ProductoController {
         return ResponseEntity.ok(productoRepository.save(producto));
     }
 
+    // 5. Eliminar (ADMIN)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productoRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Producto> getOne(@PathVariable Long id) {
-        return productoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Producto>> getAll() {
-        return ResponseEntity.ok(productoRepository.findAll());
     }
 }
