@@ -24,31 +24,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // --- LOGIN & REGISTER ---
-    @GetMapping("/auth/me")
-    public ResponseEntity<Map<String, Object>> getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        return ResponseEntity.ok(mapUserToDto(user));
-    }
-
-    @PostMapping("/auth/register")
-    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody Map<String, String> request) {
-        if (userRepository.findByEmail(request.get("email")).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Email ya existe"));
-        }
-
-        User newUser = User.builder()
-                .nombre(request.get("nombre"))
-                .email(request.get("email"))
-                .password(passwordEncoder.encode(request.get("password")))
-                .rol(Rol.CLIENTE) // <--- AQUÍ ESTÁ EL CANDADO: Siempre se crea como CLIENTE
-                .build();
-
-        userRepository.save(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapUserToDto(newUser));
-    }
 
     // --- GESTIÓN DE USUARIOS (SOLO ADMIN) ---
     
@@ -63,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(dtos);
     }
 
-    // NUEVO: Endpoint para cambiar el rol
+    // Endpoint para cambiar el rol
     @PutMapping("/users/{id}/rol")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> changeUserRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
@@ -83,6 +58,7 @@ public class UserController {
         }
     }
 
+    // Endpoint para eliminar un usuario
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
