@@ -28,7 +28,7 @@ public class ProductoController {
         private Integer stock;
         private String tipo;
         private String imagen;
-        private Long categoriaId; // Recibimos solo el ID, no el objeto completo
+        private Long categoriaId; 
     }
 
     // 1. Obtener todos (Público)
@@ -49,7 +49,11 @@ public class ProductoController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody ProductoRequest request) {
-        // Validamos que la categoría exista
+        // Validamos manualmente la categoría
+        if (request.getCategoriaId() == null) {
+            return ResponseEntity.badRequest().body("El ID de categoría es obligatorio");
+        }
+
         Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada (ID: " + request.getCategoriaId() + ")"));
 
@@ -60,21 +64,24 @@ public class ProductoController {
                 .stock(request.getStock())
                 .tipo(request.getTipo())
                 .imagen(request.getImagen())
-                .categoria(categoria) // Asignamos la relación manualmente
+                .categoria(categoria) // Asignamos la relación
                 .build();
 
         return ResponseEntity.ok(productoRepository.save(producto));
     }
 
     // 4. Actualizar (ADMIN)
-    @PutMapping("/{id}")
+@PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ProductoRequest request) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        if (request.getCategoriaId() != null) {
+            Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            producto.setCategoria(categoria);
+        }
 
         producto.setNombre(request.getNombre());
         producto.setDescripcion(request.getDescripcion());
@@ -82,7 +89,6 @@ public class ProductoController {
         producto.setStock(request.getStock());
         producto.setTipo(request.getTipo());
         producto.setImagen(request.getImagen());
-        producto.setCategoria(categoria);
 
         return ResponseEntity.ok(productoRepository.save(producto));
     }
