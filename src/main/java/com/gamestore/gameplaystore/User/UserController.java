@@ -23,7 +23,7 @@ public class UserController {
     // --- GESTIÓN DE USUARIOS (SOLO ADMIN) ---
     
     @GetMapping("/users")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TRABAJADOR')")
     public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
         List<User> users = userRepository.findAll();
         // Ordenamos por ID para que la lista no salte al editar
@@ -42,11 +42,9 @@ public class UserController {
         
         try {
             String nuevoRolStr = body.get("rol");
-            Rol nuevoRol = Rol.valueOf(nuevoRolStr); // Convierte String a Enum (TRABAJADOR, ADMIN, CLIENTE)
-            
+            Rol nuevoRol = Rol.valueOf(nuevoRolStr);
             user.setRol(nuevoRol);
             userRepository.save(user);
-            
             return ResponseEntity.ok(mapUserToDto(user));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Rol inválido"));
