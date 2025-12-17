@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gamestore.gameplaystore.Categoria.Categoria;
@@ -22,6 +23,7 @@ import com.gamestore.gameplaystore.Subcategoria.SubcategoriaRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional // Revierte los cambios en BDD al terminar cada test
 class ProductoServiceTest {
 
