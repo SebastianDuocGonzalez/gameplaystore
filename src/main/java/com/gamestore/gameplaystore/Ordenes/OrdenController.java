@@ -31,9 +31,17 @@ public class OrdenController {
 
     // 2. CLIENTE puede ver SOLO SUS órdenes
     @GetMapping("/mis-ordenes")
-    public ResponseEntity<List<Orden>> getMisOrdenes() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(ordenRepository.findByUserEmail(email));
+    public ResponseEntity<List<Orden>> obtenerMisOrdenes() {
+        // Obtener usuario autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        
+        // Buscar usuario por email
+        User usuario = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            
+        // Buscar órdenes de ese usuario ID
+        return ResponseEntity.ok(ordenRepository.findByUserId(usuario.getId()));
     }
 
     // 3. Crear Orden (Cualquier usuario autenticado)

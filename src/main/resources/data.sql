@@ -3,7 +3,7 @@
 -- Compatible con: PostgreSQL 14, 15, 16, 17+
 -- =================================================================================
 
-BEGIN; -- Iniciar transacción para asegurar integridad atómica
+BEGIN;
 
 -- ==========================================
 -- 1. CATEGORIAS
@@ -121,20 +121,21 @@ AND NOT EXISTS (SELECT 1 FROM productos WHERE nombre = 'Kit Streaming 4K');
 -- Nota: La contraseña '{noop}1234' funciona con DelegatingPasswordEncoder
 -- ==========================================
 
-INSERT INTO usuarios (id, nombre, email, password, rol)
-VALUES (1, 'Admin', 'admin@gamestore.com', '{noop}1234', 'ADMIN')
+INSERT INTO usuarios (id, nombre, email, password, rol, foto_perfil, direccion_envio, telefono_contacto)
+VALUES (1, 'Admin', 'admin@gamestore.com', '{noop}1234', 'ADMIN', 'https://ui-avatars.com/api/?name=Admin', 'Oficina Central', '+56900000001')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO usuarios (id, nombre, email, password, rol)
-VALUES (2, 'Cliente', 'cliente@gamestore.com', '{noop}1234', 'CLIENTE')
+INSERT INTO usuarios (id, nombre, email, password, rol, foto_perfil, direccion_envio, telefono_contacto)
+VALUES (2, 'Cliente', 'cliente@gamestore.com', '{noop}1234', 'CLIENTE', 'https://ui-avatars.com/api/?name=Cliente', 'Av. Siempre Viva 123', '+56912345678')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO usuarios (id, nombre, email, password, rol)
-VALUES (3, 'Vendedor', 'vendedor@gamestore.com', '{noop}1234', 'TRABAJADOR')
+-- Trabajador
+INSERT INTO usuarios (id, nombre, email, password, rol, foto_perfil, direccion_envio, telefono_contacto)
+VALUES (3, 'Vendedor', 'vendedor@gamestore.com', '{noop}1234', 'TRABAJADOR', 'https://ui-avatars.com/api/?name=Vendedor', 'Sucursal Norte', '+56987654321')
 ON CONFLICT (id) DO NOTHING;
 
 -- ==========================================
--- 6. ORDENES (Datos de Ejemplo)
+-- 5. ORDENES (Datos de Ejemplo)
 -- Creamos historial para el usuario CLIENTE (ID 2)
 -- ==========================================
 
@@ -149,7 +150,7 @@ VALUES (2, '2025-02-01 15:45:00', 179.99, 2)
 ON CONFLICT (id) DO NOTHING;
 
 -- ==========================================
--- 7. DETALLES DE ORDEN
+-- 6. DETALLES DE ORDEN
 -- Vinculamos productos a las órdenes
 -- ==========================================
 
@@ -167,8 +168,25 @@ INSERT INTO detalles_orden (id, orden_id, producto_id, nombre_producto, cantidad
 VALUES (3, 2, 3, 'Xbox Elite Wireless Controller Series 2', 1, 179.99, 179.99)
 ON CONFLICT (id) DO NOTHING;
 
+
 -- ==========================================
--- 5. AJUSTE DE SECUENCIAS (CRÍTICO PARA POSTGRESQL)
+-- 7. NOTICIAS (NUEVO)
+-- ==========================================
+INSERT INTO noticias (titulo, contenido, fuente_url, imagen_url, fecha_publicacion)
+VALUES 
+('Final de Worlds 2024 Anunciada', 'La gran final se jugará en Londres este año...', 'https://lolesports.com', 'https://images.unsplash.com/photo-1542751371-adc38448a05e', NOW()),
+('Descuentos de Verano en Steam', 'Prepara tu cartera, llegan las ofertas masivas...', 'https://store.steampowered.com', 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f', NOW());
+
+-- ==========================================
+-- 8. EVENTOS (NUEVO)
+-- ==========================================
+INSERT INTO eventos (titulo, lugar, fecha_evento, juego_relacionado, premio, detalles)
+VALUES 
+('Torneo Comunitario Valorant', 'Discord Oficial GameStore', '2025-06-15 18:00:00', 'Valorant', '10.000 VP', 'Inscripción gratuita para equipos de 5.'),
+('Lanzamiento FIFA 26', 'Tienda Mall Plaza', '2025-09-28 10:00:00', 'EA Sports FC', 'Sorteo de copias', 'Ven a probar la demo antes que nadie.');
+
+-- ==========================================
+-- 9. AJUSTE DE SECUENCIAS (CRÍTICO PARA POSTGRESQL)
 -- PostgreSQL no actualiza automáticamente la secuencia si insertamos IDs manuales.
 -- Esto previene el error "Duplicate Key" al crear el siguiente registro.
 -- ==========================================
@@ -190,5 +208,11 @@ SELECT setval(pg_get_serial_sequence('ordenes', 'id'), COALESCE((SELECT MAX(id) 
 
 -- Ajustar secuencia de detalles_orden
 SELECT setval(pg_get_serial_sequence('detalles_orden', 'id'), COALESCE((SELECT MAX(id) FROM detalles_orden), 1));
+
+-- Ajustar secuencia de noticias
+SELECT setval(pg_get_serial_sequence('noticias', 'id'), COALESCE((SELECT MAX(id) FROM noticias), 1));
+
+--- Ajustar secuencia de eventos
+SELECT setval(pg_get_serial_sequence('eventos', 'id'), COALESCE((SELECT MAX(id) FROM eventos), 1));
 
 COMMIT; -- Confirmar cambios

@@ -9,6 +9,8 @@ public interface OrdenRepository extends JpaRepository<Orden, Long> {
     // Para que el cliente vea SUS órdenes
     List<Orden> findByUserEmail(String email);
 
-        @Query("SELECT SUM(o.total) FROM Orden o")
+    @Query("SELECT SUM(o.total) FROM Orden o")
     Double sumTotalVentas();
+
+    List<Orden> findByUserId(Long userId);
 }

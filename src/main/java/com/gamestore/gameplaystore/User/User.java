@@ -35,8 +35,16 @@ public class User extends Persona implements UserDetails {
     @Column(nullable = false)
     private Rol rol;
 
-    // --- MÉTODOS DE SPRING SECURITY (UserDetails) ---
+    @Column(name = "foto_perfil")
+    private String fotoPerfil; // URL de la imagen
 
+    @Column(name = "direccion_envio")
+    private String direccionEnvio; // Dirección para envíos
+
+    @Column(name = "telefono_contacto")
+    private String telefonoContacto; // Teléfono de contacto
+
+    // --- MÉTODOS DE SPRING SECURITY (UserDetails) ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Spring Security espera "ROLE_ADMIN". Nosotros guardamos "ADMIN".

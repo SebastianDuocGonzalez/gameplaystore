@@ -40,19 +40,26 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll() // Login y Registro JWT
                 .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll() // Ver catálogo
                 .requestMatchers("/h2-console/**").permitAll()
-                
+                .requestMatchers(HttpMethod.GET, "/api/v1/noticias/**").permitAll() // Ver noticias
+                .requestMatchers(HttpMethod.GET, "/api/v1/eventos/**").permitAll() // Ver eventos
+
                 // 2. ROL VENDEDOR (TRABAJADOR) Y ADMIN
                 // Ambos pueden ver órdenes
                 .requestMatchers(HttpMethod.GET, "/api/v1/ordenes").hasAnyRole("ADMIN", "TRABAJADOR")
-                
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "TRABAJADOR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").hasAnyRole("ADMIN", "TRABAJADOR")
+
                 // 3. ROL ADMIN (Exclusivo)
                 .requestMatchers(HttpMethod.POST, "/api/v1/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/users/**").hasRole("ADMIN")// Gestión de usuarios
+                .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasRole("ADMIN")// Gestión de usuarios
+                .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
 
                 // 4. ROL CLIENTE (y otros autenticados)
                 .requestMatchers(HttpMethod.POST, "/api/v1/ordenes").authenticated() // Comprar
+                .requestMatchers("/api/v1/mis-ordenes").authenticated() // Ver "mis" órdenes
 
                 .anyRequest().authenticated()
             )
